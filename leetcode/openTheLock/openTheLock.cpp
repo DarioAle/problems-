@@ -17,48 +17,52 @@ int openLock(vector<string>& deadends, string target)
 {
 	int goal = stoi(target);
 	bool visited[10001];
-	for(string x : deadends)
-	{
-		visited[stoi(x)] = true;
-	}
+	memset(visited, false, 10001);
 
-	int curr = 0000;
+        // all deadends are already visited
+	for(string x : deadends)
+		visited[stoi(x)] = true;
+
+        // if start is a deadend we cannot get anywhere
+	if(visited[0])
+		return -1;
+
 	int answer = -1;
 	queue<int> q;
-	do
+	q.push(0);
+	visited[0] = true;
+	
+        while(!q.empty())
 	{
-		if(curr == goal)
-			break;
-
-		if(!visited[curr])
+		
+		int q_size = q.size();
+		for(int k = 0; k < q_size; ++k) 
 		{
-			visited[curr] = true;
+
+			int curr = q.front();q.pop();
+			if(curr == goal)
+				return ++answer;
+
 			// push al neighbors
-			int pow = 1;
-			for(int j = 0; j < 4; ++j, pow *= 10)
+			for(int j = 0, pow = 1; j < 4; ++j, pow *= 10)
 			{
-
-				int temp = (curr / pow) % 10;
-				int temp2 = curr -( temp * pow);
-
-				q.push(temp2 + ((temp + 1) % 10) * pow);
-				q.push(temp2 + (temp ? temp - 1 : 9) * pow);
-
-			}	
-			answer++;
+				int temp = (curr / pow) % 10;      // get digit corresponding to iteration
+				int temp2 = curr -( temp * pow);   // substract digit corresponding to iteration
+				int up   = temp2 + ((temp + 1) % 10) * pow;     // add digit with 1 increment
+				int down = temp2 + (temp ? temp - 1 : 9) * pow; // add digit with one decrement
+				if(!visited[up]) {
+					visited[up] = true;
+					q.push(up);
+				}
+				if(!visited[down]) {
+					visited[down] = true;
+					q.push(down);
+				}
+			}
 		}
-		curr = q.front();
-		q.pop();
+		answer++;
 	}
-	while(!q.empty());
-
-	while(!q.empty()){
-		cout << q.front()<< " ";
-		q.pop();
-	}
-	cout << endl;
-	return answer;
-
+        return -1;
 }
 
 int main()
